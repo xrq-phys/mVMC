@@ -50,7 +50,7 @@ int CheckQuadSite(const int iSite1, const int iSite2, const int iSite3, const in
 
 int GetTransferInfo(FILE *fp, int **ArrayIdx, double complex *ArrayValue, int Nsite, int NArray, char *defname);
 
-int GetLocSpinInfo(FILE *fp, int *ArrayIdx, int Nsite, char *defname);
+int GetLocSpinInfo(FILE *fp, int *ArrayIdx, int *tJ_flag, int Nsite, char *defname);
 
 int GetInfoCoulombIntra(FILE *fp, int *ArrayIdx, double *ArrayValue, int Nsite, int NArray, char *defname);
 
@@ -747,6 +747,7 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
   int count_idx = 0;
   int x0, x1;
   int rank;
+  int tJ_flag; /* tJ */
 
   int iNOneBodyG;
 
@@ -769,7 +770,7 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
       idx0 = 0;
       switch (iKWidx) {
         case KWLocSpin: /* Read locspn.def----------------------------------------*/
-          if (GetLocSpinInfo(fp, LocSpn, Nsite, defname) != 0) info = 1;
+          if (GetLocSpinInfo(fp, LocSpn, &tJ_flag, Nsite, defname) != 0) info = 1;
           break;//locspn
 
         case KWTrans: /* transfer.def--------------------------------------*/
@@ -963,6 +964,19 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
       QPOptTransSgn[0][i] = 1;
     }
   }
+
+  /* tJ Parameters check */
+  if (tJ_flag) {
+    if (NLanczosMode) {
+      fprintf(stderr, "error: tJ doesn't support Lanczos.");
+      info = 1;
+    }
+    if (iFlgOrbitalGeneral) {
+      fprintf(stderr, "error: tJ doesn't support Sz-unconserved systems.");
+      info = 1;
+    }
+  }
+
   if (info != 0) {
     if (rank == 0) {
       fprintf(stderr, "error: Indices and Parameters of Definition files(*.def) are incomplete.\n");
@@ -1659,13 +1673,15 @@ int GetTransferInfo(FILE *fp, int **ArrayIdx, double complex *ArrayValue, int Ns
   return info;
 }
 
-int GetLocSpinInfo(FILE *fp, int *ArrayIdx, int Nsite, char *defname) {
+int GetLocSpinInfo(FILE *fp, int *ArrayIdx, int *tJ_flag, int Nsite, char *defname) {
   char ctmp2[256];
   int idx = 0, info = 0;
   int x0 = 0, x1 = 0;
+  *tJ_flag = 0;
   while (fgets(ctmp2, sizeof(ctmp2) / sizeof(char), fp) != NULL) {
     sscanf(ctmp2, "%d %d \n", &x0, &x1);
     ArrayIdx[x0] = x1;
+    if (x1 < 0) *tJ_flag = 1;
     if (CheckSite(x0, Nsite) != 0) {
       fprintf(stderr, "Error: Site index is incorrect.\n");
       info = 1;

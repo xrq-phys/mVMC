@@ -47,6 +47,10 @@ double complex GreenFunc1(const int ri, const int rj, const int s, const double 
   if(ri==rj) return eleNum[ri+s*Nsite];
   if(eleNum[ri+s*Nsite]==1 || eleNum[rj+s*Nsite]==0) return 0.0;
 
+  /* tJ exclusion */
+  if(LocSpn[ri]==-1 && eleCfg[ri+!s*Nsite]!=-1) return 0.0;
+  if(LocSpn[rj]==-1 && eleCfg[rj+!s*Nsite]!=-1) return 0.0;
+
   mj = eleCfg[rj+s*Nsite];
   msj = mj + s*Ne;
   rsi = ri + s*Nsite;
@@ -82,6 +86,12 @@ double complex GreenFunc2(const int ri, const int rj, const int rk, const int rl
   int rsi,rsj,rtk,rtl;
   double complex *pfMNew = buffer; /* [NQPFull] */
   double complex *bufV   = buffer+NQPFull; /* 2*Nsize */
+
+  /* tJ */
+  if(LocSpn[ri]==-1 && eleCfg[ri+!s*Nsite]!=-1) return 0.0;
+  if(LocSpn[rj]==-1 && eleCfg[rj+!s*Nsite]!=-1) return 0.0;
+  if(LocSpn[rk]==-1 && eleCfg[rk+!t*Nsite]!=-1) return 0.0;
+  if(LocSpn[rl]==-1 && eleCfg[rl+!t*Nsite]!=-1) return 0.0;
 
   rsi = ri + s*Nsite;
   rsj = rj + s*Nsite;
@@ -188,6 +198,9 @@ double complex GreenFuncN(const int n, int *rsi, int *rsj, const double complex 
     si = rsi[k]/Nsite;
     sj = rsj[k]/Nsite;
     if(si!=sj) return 0;
+    /* tJ */
+    if(LocSpn[rsi[k]%Nsite]==-1 && eleCfg[rsi[k]-(2*si-1)*Nsite]!=-1) return 0.0;
+    if(LocSpn[rsj[k]%Nsite]==-1 && eleCfg[rsj[k]-(2*sj-1)*Nsite]!=-1) return 0.0;
   }
 
   if(n<=0) return 0;

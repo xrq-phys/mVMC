@@ -350,7 +350,8 @@ int makeInitialSample(int *eleIdx, int *eleCfg, int *eleNum, int *eleProjCnt,
         if(eleIdx[mi+si*Ne]== -1) {
           do {
             ri = gen_rand32()%Nsite;
-          } while (eleCfg[ri+si*Nsite]!= -1 || LocSpn[ri]==1);
+          } while ( LocSpn[ri]== 1 || eleCfg[ri+ si*Nsite] != -1 ||/* Exclusion */
+                   (LocSpn[ri]==-1 && eleCfg[ri+!si*Nsite] != -1)  /* << tJ Sites disable doublons */ );
           eleCfg[ri+si*Nsite] = mi;
           eleIdx[mi+si*Ne] = ri;
         }
@@ -492,7 +493,8 @@ void makeCandidate_hopping(int *mi_, int *ri_, int *rj_, int *s_, int *rejectFla
       break;
     }
     icnt+=1;
-  } while (eleCfg[rj+s*Nsite] != -1 || LocSpn[rj]==1);
+  } while ( LocSpn[rj]== 1 || eleCfg[rj+ s*Nsite] != -1 ||/* Exclusion */
+           (LocSpn[rj]==-1 && eleCfg[rj+!s*Nsite] != -1)  /* << tJ Sites disable doublons */ );
 
   *mi_ = mi;
   *ri_ = ri;
