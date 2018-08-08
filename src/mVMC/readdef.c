@@ -968,11 +968,11 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
   /* tJ Parameters check */
   if (tJ_flag) {
     if (NLanczosMode) {
-      fprintf(stderr, "error: tJ doesn't support Lanczos.");
+      fprintf(stderr, "error: tJ doesn't support Lanczos.\n");
       info = 1;
     }
     if (iFlgOrbitalGeneral) {
-      fprintf(stderr, "error: tJ doesn't support Sz-unconserved systems.");
+      fprintf(stderr, "error: tJ doesn't support Sz-unconserved systems.\n");
       info = 1;
     }
     if (NExUpdatePath != 1) {
