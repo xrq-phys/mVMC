@@ -975,6 +975,10 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
       fprintf(stderr, "error: tJ doesn't support Sz-unconserved systems.");
       info = 1;
     }
+    if (NExUpdatePath != 1) {
+      fprintf(stderr, "error: NExUpdatePath (in modpara.def) must be 1.\n");
+      info = 1;
+    }
   }
 
   if (info != 0) {
