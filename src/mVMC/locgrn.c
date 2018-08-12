@@ -130,6 +130,9 @@ double complex GreenFunc2(const int ri, const int rj, const int rk, const int rl
   }
 
   if(eleNum[rsi]==1 || eleNum[rsj]==0 || eleNum[rtk]==1 || eleNum[rtl]==0) return 0.0;
+  /* tJ */
+  if(LocSpn[ri]==-1 && eleCfg[ri+!s*Nsite]!=-1 && (s==t || ri!=rl)) return 0.0;
+  if(LocSpn[rk]==-1 && eleCfg[rk+!t*Nsite]!=-1 && (s==t || rk!=rj)) return 0.0;
 
   mj = eleCfg[rj+s*Nsite];
   ml = eleCfg[rl+t*Nsite];
