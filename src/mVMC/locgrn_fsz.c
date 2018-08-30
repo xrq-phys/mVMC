@@ -57,6 +57,10 @@ double complex GreenFunc1_fsz(const int ri, const int rj, const int s, const dou
   if(ri==rj) return eleNum[ri+s*Nsite];
   if(eleNum[ri+s*Nsite]==1 || eleNum[rj+s*Nsite]==0) return 0.0;
 
+  /* tJ exclusion */
+  if(LocSpn[ri]==-1 && eleCfg[ri+!s*Nsite]!=-1) return 0.0;
+  if(LocSpn[rj]==-1 && eleCfg[rj+!s*Nsite]!=-1) return 0.0;
+
   mj  = eleCfg[rj+s*Nsite];
   msj = mj;// + s*Ne;
   rsi = ri + s*Nsite;
@@ -178,6 +182,9 @@ double complex GreenFunc2_fsz(const int ri, const int rj, const int rk, const in
   }
 
   if(eleNum[rsi]==1 || eleNum[rsj]==0 || eleNum[rtk]==1 || eleNum[rtl]==0) return 0.0;
+  /* tJ */
+  if(LocSpn[ri]==-1 && eleCfg[ri+!s*Nsite]!=-1 && (s==t || ri!=rl)) return 0.0;
+  if(LocSpn[rk]==-1 && eleCfg[rk+!t*Nsite]!=-1 && (s==t || rk!=rj)) return 0.0;
 
   mj = eleCfg[rj+s*Nsite];
   ml = eleCfg[rl+t*Nsite];

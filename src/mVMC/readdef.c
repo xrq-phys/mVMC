@@ -971,7 +971,7 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
       fprintf(stderr, "error: tJ doesn't support Lanczos.\n");
       info = 1;
     }
-    if (iFlgOrbitalGeneral) {
+    if (TwoSz == -1) {
       fprintf(stderr, "error: tJ doesn't support Sz-unconserved systems.\n");
       info = 1;
     }

@@ -484,7 +484,8 @@ int makeInitialSample_fsz(int *eleIdx, int *eleCfg, int *eleNum, int *eleProjCnt
       if(eleIdx[X_mi]== -1) {
         do {
           ri = gen_rand32()%Nsite;
-        } while (eleCfg[ri+si*Nsite]!= -1 || LocSpn[ri]==1); // seeking empty and itinerant site
+        } while (LocSpn[ri]== 1||eleCfg[ri+ si*Nsite]!=-1||  // seeking empty and itinerant site
+                (LocSpn[ri]==-1&&eleCfg[ri+!si*Nsite]!=-1)); // tJ Sites disable doublons
         eleCfg[ri+si*Nsite]     = X_mi; // buggged 4/26
         eleIdx[X_mi]            = ri;
         //eleSpn[mi+si*Ne]        = si;
@@ -651,7 +652,8 @@ void makeCandidate_hopping_csz(int *mi_, int *ri_, int *rj_, int *s_,int *t_, in
       break;
     }
     icnt+=1;
-  } while (eleCfg[rj+t*Nsite] != -1 || LocSpn[rj]==1);
+  } while ( LocSpn[rj]== 1 || eleCfg[rj+ t*Nsite] != -1 ||/* Exclusion */
+           (LocSpn[rj]==-1 && eleCfg[rj+!t*Nsite] != -1)  /* << tJ Sites disable doublons */ );
 
   *mi_ = mi;
   *ri_ = ri;
