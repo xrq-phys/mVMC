@@ -26,15 +26,14 @@ matrix:
     sudo: enabled
     before_install:
       - brew update
-      - brew install --with-toolchain llvm
+      - brew install gcc
       - brew install lapack
       - export FC=gfortran;
-      - export CC := clang
     install:
       - mkdir build
       - cd build
     script:
-      - cmake -DTesting=ON ../
+      - cmake -DTesting=ON -DCONFIGURE=gcc ../
       - make
       - export OMP_NUM_THREADS=1
       - make test
