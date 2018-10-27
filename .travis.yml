@@ -10,15 +10,6 @@ matrix:
       - mkdir build
       - cd build
     script:
-      - cmake -DTesting=ON ../
-      - make
-      - export OMP_NUM_THREADS=1
-      - ctest -V
-      - rm -r test
-      - make
-      - export OMP_NUM_THREADS=3
-      - make test
-      - rm -r *
       - sudo apt-get install -y libopenmpi-dev openmpi-bin
       - cmake -DTesting=ON ../
       - make
