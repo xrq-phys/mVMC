@@ -35,7 +35,7 @@ matrix:
       - cd build
       #- export CC=/usr/local/bin/gcc-8
     script:
-      - cmake ../
+      - cmake -DCONFIGURE=gcc -DTesting=ON ../
       - make
       - export OMP_NUM_THREADS=1
       - make test
