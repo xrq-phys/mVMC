@@ -26,7 +26,8 @@ matrix:
     sudo: enabled
     before_install:
       - brew update
-      - brew install gcc
+      - brew install gcc || true
+      - brew link --overwrite gcc
       - brew install lapack
       - export FC=gfortran;
     install:
