@@ -966,7 +966,7 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
   }
 
   /* tJ Parameters check */
-  if (tJ_flag) {
+  if (rank==0 && tJ_flag) {
     if (NLanczosMode) {
       fprintf(stderr, "error: tJ doesn't support Lanczos.\n");
       info = 1;
