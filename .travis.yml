@@ -32,7 +32,7 @@ matrix:
       - mkdir build
       - cd build
     script:
-      - cmake -DTesting=ON -DCONFIGURE=gcc -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_Fortran_COMPILER=gfortran-8 ../
+      - cmake -DTesting=ON -DCONFIG=gcc -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_Fortran_COMPILER=gfortran-8 ../
       - make
       - export OMP_NUM_THREADS=1
       - make test
