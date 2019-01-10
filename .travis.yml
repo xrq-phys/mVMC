@@ -26,13 +26,13 @@ matrix:
     sudo: enabled
     before_install:
       - brew update
-      - brew install gcc-8 || true
+      - brew install gcc-7 || true
       - brew install lapack
     install:
       - mkdir build
       - cd build
     script:
-      - cmake -DTesting=ON -DCONFIG=gcc -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_Fortran_COMPILER=gfortran-8 ../
+      - cmake -DTesting=ON -DCONFIG=gcc -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_Fortran_COMPILER=gfortran-7 ../
       - make
       - export OMP_NUM_THREADS=1
       - make test
