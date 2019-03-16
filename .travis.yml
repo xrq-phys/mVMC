@@ -30,6 +30,7 @@ matrix:
       - brew link --overwrite gcc
       - brew install libomp
       - brew link --overwrite libomp
+      - brew install llvm
       - brew install lapack
       - export FC=gfortran;
       - brew install openmpi
@@ -37,7 +38,7 @@ matrix:
       - mkdir build
       - cd build
     script:
-      - cmake -DTesting=ON -DCONFIG=gcc ../
+      - cmake -DTesting=ON ../
       - make
       - export OMP_NUM_THREADS=1
       - make test
