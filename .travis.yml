@@ -28,6 +28,8 @@ matrix:
       - brew update
       - brew install gcc || true
       - brew link --overwrite gcc
+      - brew install libomp
+      - brew link --overwrite libomp
       - brew install lapack
       - export FC=gfortran;
     install:
