@@ -24,15 +24,12 @@ matrix:
   - os: osx
     language: c
     sudo: enabled
-    # "_stdio.h: No such file or directory", when building samtools.
-    softwareupdate --list
-    softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4"
     before_install:
       - brew update
       - brew install gcc@7 || true
       - brew install lapack
-      
-install:
+      - export FC=gfortran;
+    install:
       - mkdir build
       - cd build
     script:
