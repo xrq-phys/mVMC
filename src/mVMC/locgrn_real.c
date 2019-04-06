@@ -195,6 +195,7 @@ double GreenFuncN_real(const int n, int *rsi, int *rsj, const double  ip,
   int k,l,m,rsk;
   double z,x;
   int qpidx;
+  int tjExclFlag, rsexcl;
 
   int *projCntNew = bufferInt; /* [NProj] */
 
@@ -266,6 +267,15 @@ double GreenFuncN_real(const int n, int *rsi, int *rsj, const double  ip,
         }
         return (-1.0)*GreenFuncN_real(n-1,rsi,rsj,ip,eleIdx,eleCfg,eleNum,eleProjCnt,buffer,bufferInt);
       }
+    }
+    /* tJ */
+    rsexcl = rsk>Nsite ? rsk-Nsite : rsk+Nsite;
+    if(eleNum[rsexcl]) {
+      tjExclFlag = 1;
+      for(l=0;l<n;l++)
+        if(rsexcl == rsj[l])
+          tjExclFlag = 0;
+      if(tjExclFlag) return 0.0;
     }
     /* check electron number */
     if(eleNum[rsk]==1) return 0;

@@ -967,8 +967,8 @@ int ReadDefFileIdxPara(char *xNameListFile, MPI_Comm comm) {
 
   /* tJ Parameters check */
   if (rank==0 && tJ_flag) {
-    if (NLanczosMode) {
-      fprintf(stderr, "error: tJ doesn't support Lanczos.\n");
+    if (NLanczosMode > 1) {
+      fprintf(stderr, "error: tJ Lanczos doesn't support Green's function.\n");
       info = 1;
     }
     if (TwoSz == -1) {

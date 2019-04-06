@@ -193,6 +193,9 @@ double complex calHCA(const int ri, const int rj, const int s,
   } else {
     if(eleNum[rsj]==0) return 0.0;
     if(eleNum[rsi]==1) return 0.0;
+    /* t-J */
+    if(LocSpn[ri]==-1 && eleCfg[ri+!s*Nsite]!=-1) return 0.0;
+    if(LocSpn[rj]==-1 && eleCfg[rj+!s*Nsite]!=-1) return 0.0;
   }
 
   g = checkGF1(ri,rj,s,ip,eleIdx,eleCfg,eleNum);
@@ -469,6 +472,9 @@ double complex calHCACA(const int ri, const int rj, const int rk, const int rl,
     if(eleNum[rsk]==1) return 0.0;
     if(eleNum[rsj]==0) return 0.0;
     if(eleNum[rsi]==1) return 0.0;
+    /* tJ */
+    if(LocSpn[ri]==-1 && eleCfg[ri+!si*Nsite]!=-1 && (si==sk || ri!=rl)) return 0.0;
+    if(LocSpn[rk]==-1 && eleCfg[rk+!sk*Nsite]!=-1 && (si==sk || rk!=rj)) return 0.0;
   }
 
   g = checkGF2(ri,rj,rk,rl,si,sk,ip,eleIdx,eleCfg,eleNum);

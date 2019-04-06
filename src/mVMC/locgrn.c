@@ -184,6 +184,7 @@ double complex GreenFuncN(const int n, int *rsi, int *rsj, const double complex 
   int k,l,m,rsk;
   double complex z,x;
   int qpidx;
+  int tjExclFlag, rsexcl;
 
   int *projCntNew = bufferInt; /* [NProj] */
 
@@ -255,6 +256,15 @@ double complex GreenFuncN(const int n, int *rsi, int *rsj, const double complex 
         }
         return (-1.0)*GreenFuncN(n-1,rsi,rsj,ip,eleIdx,eleCfg,eleNum,eleProjCnt,buffer,bufferInt);
       }
+    }
+    /* tJ */
+    rsexcl = rsk>Nsite ? rsk-Nsite : rsk+Nsite;
+    if(eleNum[rsexcl]) {
+      tjExclFlag = 1;
+      for(l=0;l<n;l++)
+        if(rsexcl == rsj[l])
+          tjExclFlag = 0;
+      if(tjExclFlag) return 0.0;
     }
     /* check electron number */
     if(eleNum[rsk]==1) return 0;
