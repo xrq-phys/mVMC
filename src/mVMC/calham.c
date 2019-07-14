@@ -72,17 +72,29 @@ double complex CalculateHamiltonian(const double complex ip, int *eleIdx, const 
   /* GreenFunc1: NQPFull, GreenFunc2: NQPFull+2*Nsize */
 
   /*
-#pragma omp parallel default(shared)\
-  private(myEleIdx,myEleNum,myProjCntNew,myBuffer,myEnergy,idx)  \
-  reduction(+:e)
+    #pragma omp parallel default(shared) \
+      private(myEleIdx,myEleNum,myProjCntNew,myBuffer,myEnergy,idx)  \
+      reduction(+:e)
   */
-#pragma omp parallel default(none)                                      \
+#ifdef _OPENMP
+#if _OPENMP > 201307
+#pragma omp parallel default(none) \
   private(myEleIdx,myEleNum,myProjCntNew,myBuffer,myEnergy, idx, ri, rj, rk, rl, s, t) \
   firstprivate(Nsize, Nsite2, NProj, NQPFull, NCoulombIntra, CoulombIntra, ParaCoulombIntra, \
                NCoulombInter, CoulombInter, ParaCoulombInter, NHundCoupling, HundCoupling, ParaHundCoupling, \
                NTransfer, Transfer, ParaTransfer, NPairHopping, PairHopping, ParaPairHopping, \
                NExchangeCoupling, ExchangeCoupling, ParaExchangeCoupling, NInterAll, InterAll, ParaInterAll, n0, n1) \
   shared(eleCfg, eleProjCnt, eleIdx, eleNum, ip) reduction(+:e)
+#else
+#pragma omp parallel default(none) \
+  private(myEleIdx,myEleNum,myProjCntNew,myBuffer,myEnergy, idx, ri, rj, rk, rl, s, t) \
+  firstprivate(Nsize, Nsite2, NProj, NQPFull, NCoulombIntra, CoulombIntra, ParaCoulombIntra, \
+               NCoulombInter, CoulombInter, ParaCoulombInter, NHundCoupling, HundCoupling, ParaHundCoupling, \
+               NTransfer, Transfer, ParaTransfer, NPairHopping, PairHopping, ParaPairHopping, \
+               NExchangeCoupling, ExchangeCoupling, ParaExchangeCoupling, NInterAll, InterAll, ParaInterAll, n0, n1) \
+  shared(eleCfg, eleProjCnt, eleIdx, eleNum) reduction(+:e)
+#endif
+#endif
   {
     myEleIdx = GetWorkSpaceThreadInt(Nsize);
     myEleNum = GetWorkSpaceThreadInt(Nsite2);
