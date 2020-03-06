@@ -140,13 +140,15 @@
 *     ..
 *     .. External Subroutines ..
       EXTERNAL XERBLA
+      EXTERNAL DGEMM
 *     ..
 *     .. Intrinsic Functions ..
       INTRINSIC MAX
 *     ..
 *     .. Local Scalars ..
-      DOUBLE PRECISION TEMP1,TEMP2
-      INTEGER I,INFO,J,L,NROWA
+      DOUBLE PRECISION TEMP1,TEMP2,TBETA
+      INTEGER I,INFO,J,L,NROWA,MI,MJ,ML,NBLK,NBLK_,KBLK,KBLK_,
+     +        LENI,LENJ,LENL,I_,J_,L_
       LOGICAL UPPER
 *     ..
 *     .. Parameters ..
@@ -154,6 +156,8 @@
       PARAMETER (ONE= 1.0D+0)
       DOUBLE PRECISION ZERO
       PARAMETER (ZERO= 0.0D+0)
+      INTEGER MBLK
+      PARAMETER (MBLK= 32)
 *     ..
 *
 *     Test the input parameters.
@@ -229,6 +233,19 @@
           RETURN
       END IF
 *
+*     Blocking scheme.
+*
+      NBLK = N/MBLK
+      NBLK_ = MOD(N,MBLK)
+      IF (NBLK_.GT.0) THEN
+          NBLK = NBLK+1
+      END IF
+      KBLK = K/MBLK
+      KBLK_ = MOD(K,MBLK)
+      IF (KBLK_.GT.0) THEN
+          KBLK = KBLK+1
+      END IF
+*
 *     Start the operations.
 *
       IF (LSAME(TRANS,'N')) THEN
@@ -237,31 +254,93 @@
 *                   C.
 *
           IF (UPPER) THEN
-              DO 130 J = 1,N
-                  IF (BETA.EQ.ZERO) THEN
-                      DO 90 I = 1,J
-                          C(I,J) = ZERO
-   90                 CONTINUE
-                  ELSE IF (BETA.NE.ONE) THEN
-                      DO 100 I = 1,J - 1
-                          C(I,J) = BETA*C(I,J)
-  100                 CONTINUE
-                      C(J,J) = ZERO
+*
+*           Blocked algorithm starts here.
+*
+            DO 131 MJ = 1,NBLK
+              IF (MJ.EQ.NBLK.AND.NBLK_.GT.0) THEN
+                LENJ = NBLK_
+              ELSE
+                LENJ = MBLK
+              END IF
+              DO 121 ML = 1,KBLK
+                IF (ML.EQ.KBLK.AND.KBLK_.GT.0) THEN
+                  LENL = KBLK_
+                ELSE
+                  LENL = MBLK
+                END IF
+*
+*               Only multiplies BETA at the first block.
+*
+                IF (1.EQ.ML) THEN
+                  TBETA = BETA
+                ELSE
+                  TBETA = 1
+                END IF
+                DO 111 MI = 1,NBLK
+                  IF (MI.EQ.NBLK.AND.NBLK_.GT.0) THEN
+                    LENI = NBLK_
                   ELSE
-                      C(J,J) = ZERO
+                    LENI = MBLK
                   END IF
-                  DO 120 L = 1,K
-                      IF ((A(J,L).NE.ZERO) .OR. (B(J,L).NE.ZERO)) THEN
-                          TEMP1 = ALPHA*B(J,L)
-                          TEMP2 = ALPHA*A(J,L)
-                          DO 110 I = 1,J - 1
-                              C(I,J) = C(I,J) + A(I,L)*TEMP1 -
-     +                                 B(I,L)*TEMP2
-  110                     CONTINUE
-                          C(J,J) = ZERO
+                  IF (MI.EQ.MJ) THEN
+*
+*                   Vanilla core along the diagonal.
+*
+                    DO 130 J = 1,LENJ
+                      J_ = MJ*MBLK-MBLK + J
+                      IF (BETA.EQ.ZERO) THEN
+                        DO 90 I = 1,J
+                          I_ = MI*MBLK-MBLK + I
+                          C(I_,J_) = ZERO
+   90                   CONTINUE
+                      ELSE IF (TBETA.NE.ONE) THEN
+                        DO 100 I = 1,J - 1
+                          I_ = MI*MBLK-MBLK + I
+                          C(I_,J_) = TBETA*C(I_,J_)
+  100                   CONTINUE
+                        C(J_,J_) = ZERO
+                      ELSE
+                        C(J_,J_) = ZERO
                       END IF
-  120             CONTINUE
-  130         CONTINUE
+                      DO 120 L = 1,LENL
+                        L_ = ML*MBLK-MBLK + L
+                        IF ((A(J_,L_).NE.ZERO)  .OR. 
+     +                      (B(J_,L_).NE.ZERO)) THEN
+                          TEMP1 = ALPHA*B(J_,L_)
+                          TEMP2 = ALPHA*A(J_,L_)
+                          DO 110 I = 1,J - 1
+                            I_ = MI*MBLK-MBLK + I
+                            C(I_,J_) = C(I_,J_) + A(I_,L_)*TEMP1 -
+     +                                 B(I_,L_)*TEMP2
+  110                     CONTINUE
+*                         I guess this is unnecessary.
+                          C(J_,J_) = ZERO
+                        END IF
+  120                 CONTINUE
+  130               CONTINUE
+                  ELSE
+*
+*                   Use GEMM core here. 
+*                   Implementation is out of the box.
+*
+                    IF (MI.LT.MJ) THEN
+                      CALL DGEMM('N','T',LENI,LENJ,LENL,ALPHA,
+     +                           A(MI*MBLK-MBLK+1,ML*MBLK-MBLK+1),LDA,
+     +                           B(MJ*MBLK-MBLK+1,ML*MBLK-MBLK+1),LDB,
+     +                           TBETA,
+     +                           C(MI*MBLK-MBLK+1,MJ*MBLK-MBLK+1),LDC)
+                    ELSE
+                      CALL DGEMM('N','T',LENJ,LENI,LENL,-ALPHA,
+     +                           B(MJ*MBLK-MBLK+1,ML*MBLK-MBLK+1),LDB,
+     +                           A(MI*MBLK-MBLK+1,ML*MBLK-MBLK+1),LDA,
+     +                           ONE,
+     +                           C(MJ*MBLK-MBLK+1,MI*MBLK-MBLK+1),LDC)
+                    END IF
+                  END IF
+  111           CONTINUE
+  121         CONTINUE
+  131       CONTINUE
           ELSE
               DO 180 J = 1,N
                   IF (BETA.EQ.ZERO) THEN
