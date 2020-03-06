@@ -3,6 +3,8 @@
 *
 * -- Written on 10/22/2010
 *    Michael Wimmer, Universiteit Leiden
+* -- Patched (blocked operation) on 03/07/2020
+*    RuQing Xu, The University of Tokyo
 *
 *     .. Scalar Arguments ..
       CHARACTER          UPLO, MTHD
