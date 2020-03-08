@@ -1,3 +1,7 @@
+/*
+ * This kernel is extended upon https://github.com/flame/how-to-optimize-gemm.
+ */
+
 #include <mmintrin.h>
 #include <xmmintrin.h>  // SSE
 #include <pmmintrin.h>  // SSE2
